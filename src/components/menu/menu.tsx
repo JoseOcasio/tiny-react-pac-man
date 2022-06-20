@@ -19,4 +19,5 @@ function startGame(props: any): void {
     props.onChange(GAME_STATE.START);
 }
 
+
 export default Menu;

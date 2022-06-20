@@ -7,6 +7,7 @@ interface Character {
     y: number;
 }
 
+
 function Board(props: any): JSX.Element {
 
     const [pacman, setPacman] = useState<Character>({
@@ -17,40 +18,61 @@ function Board(props: any): JSX.Element {
     });
 
     const board: Array<Array<string>> = createBoard();
-
+ 
     //helps to detect game over collision
     let lastKnownPacmanPosition = pacman;
 
-    const displayBoard = board.map((cell, index) => {
+    const displayBoard = board.map((cell) => {
         return (
-            <div key={index}>
+            <div>
                 <span className='row'>{cell}</span>
             </div>
         );
     });
 
-    function handleMovements(pacmanDirection: string, setState: any): void {
+
+    function registerEvents(event: any): void{
+        let direction = "";
+        switch (event.key) {
+            case "ArrowLeft":
+                direction = DIRECTIONS.LEFT;
+                break;
+            case "ArrowUp":
+                direction = DIRECTIONS.UP;
+                break;
+            case "ArrowRight":
+                direction = DIRECTIONS.RIGHT;
+                break;
+            case "ArrowDown":
+                direction = DIRECTIONS.DOWN;
+                break;
+        }
+        handleMovements(direction);
+    }
+
+    function handleMovements(pacmanDirection: string): void {
         //pacman movement
-        move(pacmanDirection, pacman, setState, SYMBOLS.PACMAN);
+        move(pacmanDirection, pacman, setPacman, SYMBOLS.PACMAN);
 
         //enemy movement with some randomness
         const randomNumber: number = Math.ceil(Math.random() * 4);
         let enemyDirection: string;
+
         if (randomNumber <= 2 ){
             enemyDirection = calculateEnemiesMovement(pacman, enemy);
            
         }
         else {
-            let directionMap = new Map()
+            const randomDirection = Math.ceil(Math.random() * 4);
+            const directionMap = new Map()
             directionMap.set(1, DIRECTIONS.UP);
             directionMap.set(2, DIRECTIONS.DOWN);
             directionMap.set(3, DIRECTIONS.LEFT);
             directionMap.set(4, DIRECTIONS.RIGHT);
-            
-            const randomDirection = Math.ceil(Math.random() * 4);
+        
             enemyDirection = directionMap.get(randomDirection);
-
         }
+
         move(enemyDirection, enemy, setEnemy, SYMBOLS.ENEMY);
     }
 
@@ -58,23 +80,24 @@ function Board(props: any): JSX.Element {
         let newCoordinate = {
             x: 0,
             y: 0
-        }
+        };
+
+        const oldBoard = [...board];
+        
         if (direction === DIRECTIONS.LEFT){
             if (checkBounds(target.x, target.y - 1) == false){
                 return ;
             }
-            board[target.x][target.y - 1] = characterRepresentation;
+            oldBoard[target.x][target.y - 1] = characterRepresentation;
             newCoordinate.x = target.x;
             newCoordinate.y = target.y - 1;
             setState({x: target.x, y: target.y - 1});
-
-
         }
         else if (direction === DIRECTIONS.RIGHT){
             if (checkBounds(target.x, target.y + 1) == false){
                 return ;
             }
-            board[target.x][target.y + 1] = characterRepresentation;
+            oldBoard[target.x][target.y + 1] = characterRepresentation;
             newCoordinate.x = target.x;
             newCoordinate.y = target.y + 1;
             setState({x: target.x, y: target.y + 1})
@@ -84,7 +107,7 @@ function Board(props: any): JSX.Element {
             if (checkBounds(target.x + 1, target.y) == false){
                 return ;
             }
-            board[target.x + 1][target.y] = characterRepresentation;
+            oldBoard[target.x + 1][target.y] = characterRepresentation;
             newCoordinate.x = target.x + 1;
             newCoordinate.y = target.y;
             setState({x: target.x + 1, y: target.y})
@@ -93,7 +116,7 @@ function Board(props: any): JSX.Element {
             if (checkBounds(target.x - 1, target.y) == false){
                 return ;
             }
-            board[target.x - 1][target.y] = characterRepresentation;
+            oldBoard[target.x - 1][target.y] = characterRepresentation;
             newCoordinate.x = target.x - 1;
             newCoordinate.y = target.y;
             setState({x: target.x - 1, y: target.y})
@@ -103,8 +126,7 @@ function Board(props: any): JSX.Element {
         if (characterRepresentation == SYMBOLS.ENEMY){
             checkEndGame(newCoordinate, lastKnownPacmanPosition);
         }
-       
-        board[target.x][target.y] = ".";
+        oldBoard[target.x][target.y] = ".";
 
     }
 
@@ -156,9 +178,8 @@ function Board(props: any): JSX.Element {
         return direction;
     }
 
-
     function createBoard():  Array<Array<any>> {
-        const board: Array<Array<any>> = [
+        const newBoard: Array<Array<any>> = [
             [".", ".", ".", ".", ".", ".", ".", ".", ".", "." ],
             [".", ".", ".", ".", ".", ".", ".", ".", ".", "." ],
             [".", ".", ".", ".", ".", ".", ".", ".", ".", "." ],
@@ -171,24 +192,21 @@ function Board(props: any): JSX.Element {
             [".", ".", ".", ".", ".", ".", ".", ".", ".", "." ]
         ];
 
+        newBoard.forEach(row => row.fill(<span className='cell'>.</span>));
+        newBoard[pacman.x][pacman.y] = SYMBOLS.PACMAN;
+        newBoard[enemy.x][enemy.y] = SYMBOLS.ENEMY;
 
-        board.forEach(row => row.fill(<span className='cell'>.</span>));
-
-        board[pacman.x][pacman.y] = SYMBOLS.PACMAN;
-
-        board[enemy.x][enemy.y] = SYMBOLS.ENEMY;
-
-        return board;
+        return newBoard;
     }
 
-
     return(
-        <div className="board-container">
+        <div className="board-container" onKeyDown={registerEvents} tabIndex={-1}>
             {displayBoard}
-            <button onClick={() => handleMovements(DIRECTIONS.RIGHT, setPacman)}> Right </button>
-            <button onClick={() => handleMovements(DIRECTIONS.LEFT, setPacman)}> Left </button>
-            <button onClick={() => handleMovements(DIRECTIONS.UP, setPacman)}> UP </button>
-            <button onClick={() => handleMovements(DIRECTIONS.DOWN, setPacman)}> DOWN </button>
+            <div style={{padding: 40}}> Click anywhere to use Directional Arrows</div>
+            {/* <button onClick={() => handleMovements(DIRECTIONS.RIGHT)}> Right </button>
+            <button onClick={() => handleMovements(DIRECTIONS.LEFT)}> Left </button>
+            <button onClick={() => handleMovements(DIRECTIONS.UP)}> UP </button>
+            <button onClick={() => handleMovements(DIRECTIONS.DOWN)}> DOWN </button> */}
         </div>
     );
 };
