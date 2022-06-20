@@ -7,7 +7,6 @@ interface Character {
     y: number;
 }
 
-
 function Board(props: any): JSX.Element {
 
     const [pacman, setPacman] = useState<Character>({
@@ -22,6 +21,8 @@ function Board(props: any): JSX.Element {
     //helps to detect game over collision
     let lastKnownPacmanPosition = pacman;
 
+    const [displayTutorial, setDisplayTutorial] = useState(true);
+
     const displayBoard = board.map((cell) => {
         return (
             <div>
@@ -32,6 +33,7 @@ function Board(props: any): JSX.Element {
 
 
     function registerEvents(event: any): void{
+
         let direction = "";
         switch (event.key) {
             case "ArrowLeft":
@@ -199,10 +201,19 @@ function Board(props: any): JSX.Element {
         return newBoard;
     }
 
+    function renderTutorial() {
+        if (displayTutorial){
+            return (
+                <div className='tutorial-container'>Click anywhere to use Directional Arrows</div>
+            )
+        }
+        
+    }
+
     return(
-        <div className="board-container" onKeyDown={registerEvents} tabIndex={-1}>
-            {displayBoard}
-            <div style={{padding: 40}}> Click anywhere to use Directional Arrows</div>
+        <div className="board-container" onClick={() => setDisplayTutorial(false)} onKeyDown={registerEvents} tabIndex={-1}>
+            {displayBoard}                
+            {renderTutorial()}
             {/* <button onClick={() => handleMovements(DIRECTIONS.RIGHT)}> Right </button>
             <button onClick={() => handleMovements(DIRECTIONS.LEFT)}> Left </button>
             <button onClick={() => handleMovements(DIRECTIONS.UP)}> UP </button>

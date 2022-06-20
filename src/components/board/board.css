@@ -19,6 +19,16 @@
     padding: 20px;
 }
 
+.tutorial-container {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: brightness(0.5);
+}
+
 .pacman {
     width: 20px;
     height: 20px;
