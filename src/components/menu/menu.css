@@ -1,0 +1,196 @@
+.menu-container {
+    background-color: #17a2a4;
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+    position: relative;
+    margin: auto;
+    perspective: 500px;
+}
+
+/* menu css */
+
+.main {
+	display: flex;
+	flex-direction: column;
+	transform: rotatex(10deg);
+	animation: rotateAngle 6s linear infinite;
+}
+
+.menu-button {
+	display: block;
+	position: relative;
+	margin: 0.5em 0;
+	padding: .8em 2.2em;
+	cursor: pointer;
+
+	background: #FFFFFF;
+	border: none;
+	border-radius: .4em;
+
+	text-transform: uppercase;
+	font-size: 1.4em;
+	font-family: "Work Sans", sans-serif;
+	font-weight: 500;
+	letter-spacing: 0.04em;
+
+	mix-blend-mode: color-dodge;
+	perspective: 500px;
+	transform-style: preserve-3d;
+}
+
+
+.menu-button::before, .menu-button::after {
+    --z: 0px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    content: '';
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    mix-blend-mode: inherit;
+    border-radius: inherit;
+    transform-style: preserve-3d;
+    transform: translate3d(
+        calc(var(--z) * 0px), 
+        calc(var(--z) * 0px), 
+        calc(var(--z) * 0px)
+    );
+}
+	
+.menu-button {
+    mix-blend-mode: none;
+    display: block;
+}
+
+.menu-button::after {
+    background-color: #5D00FF;
+}
+
+.menu-button::before {
+    background-color: #FF1731;
+}
+
+.menu-button:hover {
+    background-color: #FFF65B;
+    transition: .3s 0.1s;
+}
+
+.menu-button:hover::before {
+    --z: 0.04;
+    animation: translateWobble 2.2s ease forwards;
+}
+
+.menu-button:hover::after {
+    --z: -0.06;
+    animation: translateWobble 2.2s ease forwards;
+}
+
+@keyframes rotateAngle {
+	0% {
+		transform: rotateY(0deg) rotateX(10deg);
+		animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1);
+	}
+	25% {
+		transform: rotateY(20deg) rotateX(10deg);
+	}
+	50% {
+		transform: rotateY(0deg) rotateX(10deg);
+		animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1);
+	}
+	75% {
+		transform: rotateY(-20deg) rotateX(10deg);
+	}
+	100% {
+		transform: rotateY(0deg) rotateX(10deg);
+	}
+}
+
+@keyframes translateWobble {
+  0% {
+		opacity: 0;
+		transform: translate3d(
+			calc(var(--z) * 0px), 
+			calc(var(--z) * 0px), 
+			calc(var(--z) * 0px)
+		);
+  }
+  16% {
+		transform: translate3d(
+			calc(var(--z) * 160px), 
+			calc(var(--z) * 160px), 
+			calc(var(--z) * 160px)
+		);
+  }
+  28% {
+		opacity: 1;
+		transform: translate3d(
+			calc(var(--z) * 70px), 
+			calc(var(--z) * 70px), 
+			calc(var(--z) * 70px)
+		);
+  }
+  44% {
+		transform: translate3d(
+			calc(var(--z) * 130px), 
+			calc(var(--z) * 130px), 
+			calc(var(--z) * 130px)
+		);
+  }
+  59% {
+		transform: translate3d(
+			calc(var(--z) * 85px), 
+			calc(var(--z) * 85px), 
+			calc(var(--z) * 85px)
+		);
+  }
+  73% {
+		transform: translate3d(
+			calc(var(--z) * 110px), 
+			calc(var(--z) * 110px), 
+			calc(var(--z) * 110px)
+		);
+  }
+	88% {
+		opacity: 1;
+		transform: translate3d(
+			calc(var(--z) * 90px), 
+			calc(var(--z) * 90px), 
+			calc(var(--z) * 90px)
+		);
+  }
+  100% {
+		opacity: 1;
+		transform: translate3d(
+			calc(var(--z) * 100px), 
+			calc(var(--z) * 100px), 
+			calc(var(--z) * 100px)
+		);
+  }
+}
+
+
+/* game over menu css */
+
+.game-over-container {
+    animation: gameOverAnim 2.2s ease forwards;
+    animation-iteration-count: infinite;
+    font-size: 50px;
+
+}
+
+@keyframes gameOverAnim {
+    0%{color:lime; text-shadow:0 0 20px green}
+    25%{color:green; text-shadow:2px 2px 2px lime; transform: translate(-2px,1px)}
+    40%{color:lime; text-shadow:none; transform: translate(0,0)}
+    50%{color:green; text-shadow:5px 5px 2px blue, -5px -5px 2px red; transform: translate(0px,5px)}
+    70%{color:lime; text-shadow:none; transform: translate(0,0)}
+    80%{color:lime; text-shadow:0 0 20px green; transform: translate(-2px,1px)}
+    100%{color:lime; text-shadow:none;}
+  }

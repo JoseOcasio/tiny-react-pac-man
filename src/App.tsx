@@ -1,24 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
+import { useState } from 'react';
 import './App.css';
+import Board from './components/board/board';
+import Menu from './components/menu/menu';
+import GameOverMenu from './components/menu/gameOverMenu';
+import { GAME_STATE } from './common/constants';
 
 function App() {
+
+  const [gameStatus, setGameStatus] = useState(GAME_STATE.NOT_STARTED);
+
+  function handleGameStatus(status: string): void {
+    setGameStatus(status);
+  }
+
+  function render(): JSX.Element {
+    if (gameStatus == GAME_STATE.NOT_STARTED){
+      return <Menu onChange={handleGameStatus}/>
+    }
+    else if (gameStatus == GAME_STATE.START){
+      return <Board onChange={handleGameStatus}/>
+    }
+    else if (gameStatus == GAME_STATE.END){
+      return <GameOverMenu onChange={handleGameStatus}/>
+    }
+
+    return <div>Unknown Component to Render</div>
+  }
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+       React Pac Man
       </header>
+      {render()}
     </div>
   );
 }
