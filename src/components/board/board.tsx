@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DIRECTIONS, GAME_STATE, SYMBOLS } from '../../common/constants';
+import { DIRECTIONS, GAME_DIFFICULTY, GAME_STATE, SYMBOLS } from '../../common/constants';
 import './board.css';
 
 interface Character {
@@ -52,15 +52,28 @@ function Board(props: any): JSX.Element {
         handleMovements(direction);
     }
 
+    function calculateGameDifficulty(): number {
+        if (props.difficulty == GAME_DIFFICULTY.EASY){
+            return 1;
+        }
+        else if (props.difficulty == GAME_DIFFICULTY.NORMAL){
+            return 2;
+        }
+        else if (props.difficulty == GAME_DIFFICULTY.IMPOSSIBLE){
+            return 3;
+        }
+        return 0;
+    }
+
     function handleMovements(pacmanDirection: string): void {
         //pacman movement
         move(pacmanDirection, pacman, setPacman, SYMBOLS.PACMAN);
 
         //enemy movement with some randomness
-        const randomNumber: number = Math.ceil(Math.random() * 4);
+        const randomNumber: number = Math.ceil(Math.random() * 3); //3 is the amount of difficulty settings
         let enemyDirection: string;
 
-        if (randomNumber <= 2 ){
+        if (randomNumber < calculateGameDifficulty() ){
             enemyDirection = calculateEnemiesMovement(pacman, enemy);
            
         }
@@ -207,17 +220,12 @@ function Board(props: any): JSX.Element {
                 <div className='tutorial-container'>Click anywhere to use Directional Arrows</div>
             )
         }
-        
     }
 
     return(
         <div className="board-container" onClick={() => setDisplayTutorial(false)} onKeyDown={registerEvents} tabIndex={-1}>
             {displayBoard}                
             {renderTutorial()}
-            {/* <button onClick={() => handleMovements(DIRECTIONS.RIGHT)}> Right </button>
-            <button onClick={() => handleMovements(DIRECTIONS.LEFT)}> Left </button>
-            <button onClick={() => handleMovements(DIRECTIONS.UP)}> UP </button>
-            <button onClick={() => handleMovements(DIRECTIONS.DOWN)}> DOWN </button> */}
         </div>
     );
 };

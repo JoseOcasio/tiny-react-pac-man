@@ -27,3 +27,9 @@ export const SYMBOLS = {
                 </span>
             </span>
 }
+
+export const GAME_DIFFICULTY = {
+    EASY: "EASY",
+    NORMAL: "NORMAL",
+    IMPOSSIBLE: "IMPOSSIBLE"
+}

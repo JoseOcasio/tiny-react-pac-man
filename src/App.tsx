@@ -2,26 +2,24 @@ import { useState } from 'react';
 import './App.css';
 import Board from './components/board/board';
 import Menu from './components/menu/menu';
-import GameOverMenu from './components/menu/gameOverMenu';
-import { GAME_STATE } from './common/constants';
+import { GAME_DIFFICULTY, GAME_STATE } from './common/constants';
 
 function App() {
 
   const [gameStatus, setGameStatus] = useState(GAME_STATE.NOT_STARTED);
+  const [gameDifficulty, setGameDifficulty] = useState(GAME_DIFFICULTY.EASY);
 
-  function handleGameStatus(status: string): void {
+  function handleGameStatus(status: string, difficulty: string): void {
     setGameStatus(status);
+    setGameDifficulty(difficulty);
   }
 
   function render(): JSX.Element {
-    if (gameStatus == GAME_STATE.NOT_STARTED){
-      return <Menu onChange={handleGameStatus}/>
+    if (gameStatus == GAME_STATE.NOT_STARTED || gameStatus == GAME_STATE.END ){
+      return <Menu onChange={handleGameStatus} gameStatus={gameStatus}/>
     }
     else if (gameStatus == GAME_STATE.START){
-      return <Board onChange={handleGameStatus}/>
-    }
-    else if (gameStatus == GAME_STATE.END){
-      return <GameOverMenu onChange={handleGameStatus}/>
+      return <Board onChange={handleGameStatus} difficulty={gameDifficulty}/>
     }
 
     return <div>Unknown Component to Render</div>
