@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DIRECTIONS, GAME_DIFFICULTY, GAME_STATE, SYMBOLS } from '../../common/constants';
 import './board.css';
 
@@ -6,6 +6,7 @@ interface Character {
     x: number;
     y: number;
 }
+
 
 function Board(props: any): JSX.Element {
 
@@ -16,10 +17,11 @@ function Board(props: any): JSX.Element {
         x: 0, y: 0
     });
 
-    const board: Array<Array<string>> = createBoard();
- 
-    //helps to detect game over collision
-    let lastKnownPacmanPosition = pacman;
+    const [lastEnemyCellState, setlastEnemyCellState] = useState("cell");
+
+    const [score, setScore] = useState(0)
+
+    const [board, setBoard] = useState(createBoard());
 
     const [displayTutorial, setDisplayTutorial] = useState(true);
 
@@ -31,9 +33,16 @@ function Board(props: any): JSX.Element {
         );
     });
 
+    let maxScore = 0;
+    board.forEach(row => {
+        maxScore = maxScore + row.length;
+    });
 
-    function registerEvents(event: any): void{
+    if (score == maxScore - 1){
+        props.onChange(GAME_STATE.END);
+    }
 
+    function keyDownEvent(event: any): void{
         let direction = "";
         switch (event.key) {
             case "ArrowLeft":
@@ -73,9 +82,8 @@ function Board(props: any): JSX.Element {
         const randomNumber: number = Math.ceil(Math.random() * 3); //3 is the amount of difficulty settings
         let enemyDirection: string;
 
-        if (randomNumber < calculateGameDifficulty() ){
+        if (randomNumber <= calculateGameDifficulty() ){
             enemyDirection = calculateEnemiesMovement(pacman, enemy);
-           
         }
         else {
             const randomDirection = Math.ceil(Math.random() * 4);
@@ -89,63 +97,66 @@ function Board(props: any): JSX.Element {
         }
 
         move(enemyDirection, enemy, setEnemy, SYMBOLS.ENEMY);
+
     }
 
-    function move(direction: string, target: Character, setState: any, characterRepresentation: any): void{
+    function move(direction: string, target: Character, setState: any, characterRepresentation: JSX.Element): void{
+        
         let newCoordinate = {
             x: 0,
             y: 0
         };
 
-        const oldBoard = [...board];
-        
+        let newBoard = [...board];
+
         if (direction === DIRECTIONS.LEFT){
-            if (checkBounds(target.x, target.y - 1) == false){
-                return ;
-            }
-            oldBoard[target.x][target.y - 1] = characterRepresentation;
             newCoordinate.x = target.x;
             newCoordinate.y = target.y - 1;
-            setState({x: target.x, y: target.y - 1});
         }
         else if (direction === DIRECTIONS.RIGHT){
-            if (checkBounds(target.x, target.y + 1) == false){
-                return ;
-            }
-            oldBoard[target.x][target.y + 1] = characterRepresentation;
             newCoordinate.x = target.x;
             newCoordinate.y = target.y + 1;
-            setState({x: target.x, y: target.y + 1})
-
         }
         else if (direction === DIRECTIONS.DOWN){
-            if (checkBounds(target.x + 1, target.y) == false){
-                return ;
-            }
-            oldBoard[target.x + 1][target.y] = characterRepresentation;
             newCoordinate.x = target.x + 1;
             newCoordinate.y = target.y;
-            setState({x: target.x + 1, y: target.y})
         }
         else if (direction === DIRECTIONS.UP){
-            if (checkBounds(target.x - 1, target.y) == false){
-                return ;
-            }
-            oldBoard[target.x - 1][target.y] = characterRepresentation;
             newCoordinate.x = target.x - 1;
             newCoordinate.y = target.y;
-            setState({x: target.x - 1, y: target.y})
         }
 
-        //an enemy is being moved
+        if (isInBounds(newCoordinate.x, newCoordinate.y) == false){
+            return;
+        }
+
+        setState({x: newCoordinate.x, y: newCoordinate.y});
+
+        if (characterRepresentation == SYMBOLS.PACMAN){
+            checkEndGame(newCoordinate, enemy, pacman);
+            newBoard[target.x][target.y] = SYMBOLS.ATE_CELL;
+
+            if (newBoard[newCoordinate.x][newCoordinate.y].props.className == "cell"){
+                setScore(prevScore => prevScore + 1);
+            }
+        }
+
         if (characterRepresentation == SYMBOLS.ENEMY){
-            checkEndGame(newCoordinate, lastKnownPacmanPosition);
-        }
-        oldBoard[target.x][target.y] = ".";
+            setlastEnemyCellState(newBoard[newCoordinate.x][newCoordinate.y].props.className);
 
+            if (lastEnemyCellState == "ate-cell"){
+                newBoard[target.x][target.y] = SYMBOLS.ATE_CELL;
+            }
+            else if (lastEnemyCellState == "cell"){
+                newBoard[target.x][target.y] = SYMBOLS.NORMAL_CELL; 
+            }
+        }
+
+        newBoard[newCoordinate.x][newCoordinate.y] = characterRepresentation;
+        setBoard(newBoard);
     }
 
-    function checkBounds(x: number, y: number): boolean {
+    function isInBounds(x: number, y: number): boolean {
         if (x < board.length && x >= 0){
             if (y < board[x].length && y >= 0){
                 return true;
@@ -154,14 +165,14 @@ function Board(props: any): JSX.Element {
         return false;
     }
 
-    function checkEndGame(s: Character, t: Character): void {
-        if (JSON.stringify(s) === JSON.stringify(t)){
+    function checkEndGame(newCoordinate: Character, enemy: Character, pacman: Character): void {
+        if (JSON.stringify(newCoordinate) === JSON.stringify(enemy) || JSON.stringify(newCoordinate) === JSON.stringify(pacman)){
             props.onChange(GAME_STATE.END);
         }
     }
 
     function calculateEnemiesMovement(target: Character, enemy: Character): string{
-        //checkbounds that movement is allowed
+        //isInBounds that movement is allowed
         let distance: number = 0;
         let direction: string = "";
         
@@ -223,9 +234,12 @@ function Board(props: any): JSX.Element {
     }
 
     return(
-        <div className="board-container" onClick={() => setDisplayTutorial(false)} onKeyDown={registerEvents} tabIndex={-1}>
+        <div className="board-container" onClick={() => setDisplayTutorial(false)} onKeyDown={keyDownEvent} tabIndex={-1}>
             {displayBoard}                
             {renderTutorial()}
+            <div className='score-container'>
+                Score: {score}
+            </div>
         </div>
     );
 };

@@ -25,7 +25,9 @@ export const SYMBOLS = {
                     <div className="ghost-eye-left"></div>
                     <div className="ghost-mouth"></div>
                 </span>
-            </span>
+            </span>,
+    NORMAL_CELL: <span className='cell'>.</span>,
+    ATE_CELL : <span className='ate-cell'>.</span>
 }
 
 export const GAME_DIFFICULTY = {

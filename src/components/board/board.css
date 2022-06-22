@@ -19,6 +19,15 @@
     padding: 20px;
 }
 
+.ate-cell {
+    padding: 22px;
+    font-size: 6px;
+}
+
+.score-container {
+  margin: 20px;
+}
+
 .tutorial-container {
     position: absolute;
     width: 100vw;
